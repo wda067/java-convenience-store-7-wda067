@@ -55,4 +55,12 @@ public class Product {
         this.quantity -= quantity;
     }
 
+    public void reducePromotionQuantity(int quantity) {
+        this.promotionQuantity -= quantity;
+        if (this.promotionQuantity < 0) {
+            reduceQuantity(Math.abs(this.promotionQuantity));
+            this.promotionQuantity = 0;
+        }
+    }
+
 }

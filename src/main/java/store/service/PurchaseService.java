@@ -73,15 +73,18 @@ public class PurchaseService {
         return productRepository.findAllProducts();
     }
 
-    public void updateQuantity() {
+    public void updateQuantity(LocalDate date) {
         for (Entry<String, Integer> entry : productInventory.entrySet()) {
             Product product = productRepository.findProductByName(entry.getKey())
                     .orElseThrow();
-
+            if (isPromotionApplicable(product, date)) {
+                product.reducePromotionQuantity(entry.getValue());
+                return;
+            }
             product.reduceQuantity(entry.getValue());
         }
     }
-
+    
 
     private boolean isPromotionApplicable(Product product, LocalDate date) {
         Promotion promotion = product.getPromotion();
