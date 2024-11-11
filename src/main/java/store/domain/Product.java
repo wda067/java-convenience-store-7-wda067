@@ -35,20 +35,24 @@ public class Product {
         return quantity;
     }
 
-    public int getPromotionQuantity() {
-        return promotionQuantity;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
-    public void setPromotionQuantity(int quantity) {
-        this.promotionQuantity = quantity;
+    public int getPromotionQuantity() {
+        return promotionQuantity;
     }
 
     public Promotion getPromotion() {
         return promotion;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setPromotionQuantity(int quantity) {
+        this.promotionQuantity = quantity;
+    }
+
+    public void setPromotion(Promotion promotion) {
+        this.promotion = promotion;
     }
 
     public void reduceQuantity(int quantity) {

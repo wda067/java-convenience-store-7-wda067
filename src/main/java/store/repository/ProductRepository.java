@@ -40,7 +40,14 @@ public class ProductRepository {
                     products.add(product);
                     continue;
                 }
-                optionalProduct.get().setQuantity(quantity);
+
+                Product product = optionalProduct.get();
+                if (promotion == null) {
+                    product.setQuantity(quantity);
+                    continue;
+                }
+                product.setPromotionQuantity(quantity);
+                product.setPromotion(promotion);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
