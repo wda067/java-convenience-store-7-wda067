@@ -118,6 +118,21 @@ public class PurchaseService {
                 .sum() * -1;
     }
 
+    private int calculateMembershipDiscount(int totalAmount, List<PromotionDto> promotionDtos) {
+        int membershipDiscount = promotionDtos.stream()
+                .mapToInt(this::calculateIndividualMembershipDiscount)
+                .sum() - totalAmount;
+
+        return (int) (membershipDiscount * 0.3);
+    }
+
+    private int calculateIndividualMembershipDiscount(PromotionDto promotionDto) {
+        Product product = getProductByName(promotionDto.getName());
+        Promotion promotion = product.getPromotion();
+        int promotionCount = promotion.getBuyQuantity() + promotion.getGetQuantity();
+        return product.getPrice() * promotionDto.getFreeCount() * promotionCount;
+    }
+
     private Product getProductByName(String name) {
         return productRepository.findProductByName(name)
                 .orElseThrow(() -> new IllegalArgumentException());
