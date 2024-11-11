@@ -1,31 +1,36 @@
 package store.view;
 
 import static camp.nextstep.edu.missionutils.Console.readLine;
+import static store.enums.Message.CONFIRM_ADDITIONAL_PURCHASE;
+import static store.enums.Message.CONFIRM_FREE_ITEM_ADDITION;
+import static store.enums.Message.CONFIRM_MEMBERSHIP;
+import static store.enums.Message.CONFIRM_PURCHASE_WITHOUT_PROMOTION;
+import static store.enums.Message.INPUT_PRODUCT;
 
 public class InputView {
 
     public String inputProduct() {
-        System.out.println("\n구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
+        System.out.println(INPUT_PRODUCT.getMessage());
         return readLine();
     }
 
     public String confirmMembership() {
-        System.out.println("멤버십 할인을 받으시겠습니까? (Y/N)");
+        System.out.println(CONFIRM_MEMBERSHIP.getMessage());
         return readLine();
     }
 
-    public String confirmFreeItemAddition(String item, int count) {
-        System.out.println("현재 " + item + "은(는) " + count + "개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)");
+    public String confirmFreeItemAddition(String product, int count) {
+        System.out.printf(CONFIRM_FREE_ITEM_ADDITION.getMessage(), product, count);
         return readLine();
     }
 
-    public String confirmPurchaseWithoutPromotion(String item, int count) {
-        System.out.println("현재 " + item + " " + count + "개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)");
+    public String confirmPurchaseWithoutPromotion(String product, int count) {
+        System.out.printf(CONFIRM_PURCHASE_WITHOUT_PROMOTION.getMessage(), product, count);
         return readLine();
     }
 
     public String confirmAdditionalPurchase() {
-        System.out.println("감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)");
+        System.out.println(CONFIRM_ADDITIONAL_PURCHASE.getMessage());
         return readLine();
     }
 }
