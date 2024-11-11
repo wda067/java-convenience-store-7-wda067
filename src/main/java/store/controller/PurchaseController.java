@@ -35,11 +35,10 @@ public class PurchaseController {
             List<PromotionDto> promotionDtos = applyPromotions(date);
             PurchaseDto purchaseDto = calculatePurchase(promotionDtos);
             displayReceipt(promotionDtos, purchaseDto);
-
             if (!isAdditionalPurchase(date)) {
                 break;
             }
-            System.out.println();
+            outputView.printNewLine();
         }
     }
 
@@ -131,7 +130,8 @@ public class PurchaseController {
 
     private void displayReceipt(List<PromotionDto> promotionDtos, PurchaseDto purchaseDto) {
         outputView.printPurchasedProducts(purchaseService.getProductDtos());
-        if (!promotionDtos.isEmpty()) {
+        boolean isNotEmpty = !promotionDtos.isEmpty();
+        if (isNotEmpty) {
             outputView.printFreeProducts(promotionDtos);
         }
         outputView.printPaymentSummary(purchaseDto);
