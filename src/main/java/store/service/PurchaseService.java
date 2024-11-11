@@ -14,19 +14,27 @@ import store.repository.ProductRepository;
 public class PurchaseService {
 
     private final ProductRepository productRepository;
-    private Map<String, Integer> productInventory;
+    private Map<String, Integer> cart;
 
     public PurchaseService(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 
-    public void initInventory(Map<String, Integer> productInventory) {
-        this.productInventory = productInventory;
+    public void initCart(Map<String, Integer> cart) {
+        this.cart = cart;
+    }
+
+    public List<Product> getProducts() {
+        return productRepository.findAllProducts();
+    }
+
+    public Map<String, Integer> getCart() {
+        return cart;
     }
 
     public List<PromotionDto> applyApplicablePromotions(LocalDate date) {
         List<PromotionDto> promotions = new ArrayList<>();
-        for (Entry<String, Integer> entry : productInventory.entrySet()) {
+        for (Entry<String, Integer> entry : cart.entrySet()) {
             String item = entry.getKey();
             int purchaseCount = entry.getValue();
             Product product = productRepository.findProductByName(item)
@@ -45,17 +53,15 @@ public class PurchaseService {
 
         //프로모션 재고가 충분한 경우
         if (purchaseQuantity < product.getPromotionQuantity()) {
-            return getPromotionDto(purchaseQuantity, promotion, promotionDto);
+            return getDtoWhenQuantityIsSufficient(purchaseQuantity, promotion, promotionDto);
         }
 
         //프로모션 재고가 부족한 경우
-        int free = product.getPromotionQuantity() / (promotion.getBuyQuantity() + promotion.getGetQuantity());
-        promotionDto.setFreeCount(free);
-        promotionDto.setNonPromotionQuantity(purchaseQuantity - (promotion.getBuyQuantity() + promotion.getGetQuantity()) * free);
-        return promotionDto;
+        return getDtoWhenQuantityIsInsufficient(product, purchaseQuantity, promotion, promotionDto);
     }
 
-    private PromotionDto getPromotionDto(int purchaseQuantity, Promotion promotion, PromotionDto promotionDto) {
+    private PromotionDto getDtoWhenQuantityIsSufficient(int purchaseQuantity, Promotion promotion,
+                                                        PromotionDto promotionDto) {
         int free = purchaseQuantity / (promotion.getBuyQuantity() + promotion.getGetQuantity());
         int remainder = purchaseQuantity % (promotion.getBuyQuantity() + promotion.getGetQuantity());
         //추가 증정 가능
@@ -69,12 +75,18 @@ public class PurchaseService {
         return promotionDto;
     }
 
-    public List<Product> getProducts() {
-        return productRepository.findAllProducts();
+    private PromotionDto getDtoWhenQuantityIsInsufficient(Product product, int purchaseQuantity,
+                                                          Promotion promotion,
+                                                          PromotionDto promotionDto) {
+        int free = product.getPromotionQuantity() / (promotion.getBuyQuantity() + promotion.getGetQuantity());
+        promotionDto.setFreeCount(free);
+        promotionDto.setNonPromotionQuantity(
+                purchaseQuantity - (promotion.getBuyQuantity() + promotion.getGetQuantity()) * free);
+        return promotionDto;
     }
 
     public void updateQuantity(LocalDate date) {
-        for (Entry<String, Integer> entry : productInventory.entrySet()) {
+        for (Entry<String, Integer> entry : cart.entrySet()) {
             Product product = productRepository.findProductByName(entry.getKey())
                     .orElseThrow();
             if (isPromotionApplicable(product, date)) {
@@ -98,13 +110,13 @@ public class PurchaseService {
     }
 
     private int calculateTotalCount() {
-        return productInventory.values().stream()
+        return cart.values().stream()
                 .mapToInt(Integer::intValue)
                 .sum();
     }
 
     private int calculateTotalAmount() {
-        return productInventory.entrySet().stream()
+        return cart.entrySet().stream()
                 .mapToInt(entry -> {
                     Product product = getProductByName(entry.getKey());
                     return product.getPrice() * entry.getValue();
