@@ -1,6 +1,7 @@
 package store.controller;
 
 import static camp.nextstep.edu.missionutils.DateTimes.now;
+import static store.util.Validator.validateResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,43 +26,118 @@ public class PurchaseController {
     }
 
     public void run() {
-        //상품 목록 출력
+        LocalDate date = now().toLocalDate();
+        do {
+            displayWelcomeAndProducts();
+            Map<String, Integer> cart = getCart();
+            List<PromotionDto> promotionDtos = applyPromotions(cart, date);
+            PurchaseDto purchaseDto = calculatePurchase(promotionDtos);
+            displayReceipt(cart, promotionDtos, purchaseDto);
+        } while (isAdditionalPurchase(date));
+    }
+
+    private void displayWelcomeAndProducts() {
         outputView.printWelcomeMessage();
         outputView.printProducts(purchaseService.getProducts());
+    }
 
-        //상품과 수량 입력
-        String inputProduct = inputView.inputProduct();
-        Map<String, Integer> productInventory = Validator.validateProduct(inputProduct);
-        purchaseService.initInventory(productInventory);
+    private Map<String, Integer> getCart() {
+        while (true) {
+            try {
+                String inputProduct = inputView.inputProduct();
+                Map<String, Integer> cart = Validator.validateProduct(inputProduct);
+                purchaseService.initCart(cart);
+                return cart;
+            } catch (IllegalArgumentException e) {
+                outputView.printExceptionMessage(e.getMessage());
+            }
+        }
+    }
 
-        //프로모션 적용
-        LocalDate date = now().toLocalDate();
+    private List<PromotionDto> applyPromotions(Map<String, Integer> cart, LocalDate date) {
         List<PromotionDto> promotionDtos = purchaseService.applyApplicablePromotions(date);
 
-        //재입력
         for (PromotionDto promotionDto : promotionDtos) {
-            int availablePromotionQuantity = promotionDto.getAvailablePromotionQuantity();
-            if (availablePromotionQuantity != 0) {
+            handlePromotionInput(cart, promotionDto);
+        }
+
+        return promotionDtos;
+    }
+
+    private void handlePromotionInput(Map<String, Integer> cart, PromotionDto promotionDto) {
+        int availablePromotionQuantity = promotionDto.getAvailablePromotionQuantity();
+        if (availablePromotionQuantity > 0) {
+            handleFreeProductAddition(cart, promotionDto);
+        }
+        int nonPromotionQuantity = promotionDto.getNonPromotionQuantity();
+        if (nonPromotionQuantity > 0) {
+            handlePurchaseWithoutPromotion(cart, promotionDto);
+        }
+    }
+
+    private void handleFreeProductAddition(Map<String, Integer> cart, PromotionDto promotionDto) {
+        int availablePromotionQuantity = promotionDto.getAvailablePromotionQuantity();
+        while (true) {
+            try {
                 String response = inputView.confirmFreeItemAddition(promotionDto.getName(), availablePromotionQuantity);
-                boolean isConfirmed = Validator.validateResponse(response);
-                if (isConfirmed) {
+                if (validateResponse(response)) {
                     promotionDto.setFreeCount(promotionDto.getFreeCount() + 1);
-                    productInventory.put(promotionDto.getName(), productInventory.get(promotionDto.getName()) + 1);
+                    cart.put(promotionDto.getName(), cart.get(promotionDto.getName()) + 1);
                 }
+                break;
+            } catch (IllegalArgumentException e) {
+                outputView.printExceptionMessage(e.getMessage());
             }
-            int nonPromotionQuantity = promotionDto.getNonPromotionQuantity();
-            if (nonPromotionQuantity != 0) {
+        }
+    }
+
+    private void handlePurchaseWithoutPromotion(Map<String, Integer> productInventory, PromotionDto promotionDto) {
+        int nonPromotionQuantity = promotionDto.getNonPromotionQuantity();
+        while (true) {
+            try {
                 String response = inputView.confirmPurchaseWithoutPromotion(promotionDto.getName(),
                         nonPromotionQuantity);
-                boolean isNotConfirmed = !Validator.validateResponse(response);
+                boolean isNotConfirmed = !validateResponse(response);
                 if (isNotConfirmed) {
                     productInventory.put(promotionDto.getName(),
                             productInventory.get(promotionDto.getName()) - nonPromotionQuantity);
                 }
+                break;
+            } catch (IllegalArgumentException e) {
+                outputView.printExceptionMessage(e.getMessage());
             }
         }
+    }
 
-        boolean hasMembership = Validator.validateResponse(inputView.confirmMembership());
-        PurchaseDto purchaseDto = purchaseService.calculatePurchase(promotionDtos, hasMembership);
+    private PurchaseDto calculatePurchase(List<PromotionDto> promotionDtos) {
+        boolean hasMembership;
+        while (true) {
+            try {
+                hasMembership = validateResponse(inputView.confirmMembership());
+                break;
+            } catch (IllegalArgumentException e) {
+                outputView.printExceptionMessage(e.getMessage());
+            }
+        }
+        return purchaseService.calculatePurchase(promotionDtos, hasMembership);
+    }
+
+    private void displayReceipt(Map<String, Integer> productInventory, List<PromotionDto> promotionDtos,
+                                PurchaseDto purchaseDto) {
+        outputView.printPurchasedProducts(productInventory);
+        outputView.printFreeProducts(promotionDtos);
+        outputView.printPaymentSummary(purchaseDto);
+    }
+
+    private boolean isAdditionalPurchase(LocalDate date) {
+        while (true) {
+            try {
+                boolean isAdditionalPurchase = validateResponse(inputView.confirmAdditionalPurchase());
+                purchaseService.updateQuantity(date);
+                return isAdditionalPurchase;
+            } catch (IllegalArgumentException e) {
+                outputView.printExceptionMessage(e.getMessage());
+            }
+        }
     }
 }
