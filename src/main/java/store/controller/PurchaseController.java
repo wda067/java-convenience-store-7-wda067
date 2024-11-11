@@ -48,9 +48,17 @@ public class PurchaseController {
                     productInventory.put(promotionDto.getName(), productInventory.get(promotionDto.getName()) + 1);
                 }
             }
-          
+            int nonPromotionQuantity = promotionDto.getNonPromotionQuantity();
+            if (nonPromotionQuantity != 0) {
+                String response = inputView.confirmPurchaseWithoutPromotion(promotionDto.getName(),
+                        nonPromotionQuantity);
+                boolean isNotConfirmed = !Validator.validateResponse(response);
+                if (isNotConfirmed) {
+                    productInventory.put(promotionDto.getName(),
+                            productInventory.get(promotionDto.getName()) - nonPromotionQuantity);
+                }
+            }
         }
-
 
     }
 }
