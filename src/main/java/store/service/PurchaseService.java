@@ -47,7 +47,11 @@ public class PurchaseService {
             return getPromotionDto(purchaseQuantity, promotion, promotionDto);
         }
 
-        return null;
+        //프로모션 재고가 부족한 경우
+        int free = product.getPromotionQuantity() / (promotion.getBuyQuantity() + promotion.getGetQuantity());
+        promotionDto.setFreeCount(free);
+        promotionDto.setNonPromotionQuantity(purchaseQuantity - (promotion.getBuyQuantity() + promotion.getGetQuantity()) * free);
+        return promotionDto;
     }
 
     private PromotionDto getPromotionDto(int purchaseQuantity, Promotion promotion, PromotionDto promotionDto) {
