@@ -85,11 +85,14 @@ public class PurchaseService {
         }
     }
 
-    public PurchaseDto calculatePurchase(List<PromotionDto> promotions) {
+    public PurchaseDto calculatePurchase(List<PromotionDto> promotions, boolean hasMembership) {
         int totalCount = calculateTotalCount();
         int totalAmount = calculateTotalAmount();
         int promotionDiscount = calculatePromotionDiscount(promotions);
-        int membershipDiscount = calculateMembershipDiscount(totalAmount, promotions);
+        int membershipDiscount = 0;
+        if (hasMembership) {
+            membershipDiscount = calculateMembershipDiscount(totalAmount, promotions);
+        }
         int finalAmount = totalAmount + promotionDiscount + membershipDiscount;
         return new PurchaseDto(totalCount, totalAmount, promotionDiscount, membershipDiscount, finalAmount);
     }

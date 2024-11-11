@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import store.dto.PromotionDto;
+import store.dto.PurchaseDto;
 import store.service.PurchaseService;
 import store.util.Validator;
 import store.view.InputView;
@@ -60,5 +61,7 @@ public class PurchaseController {
             }
         }
 
+        boolean hasMembership = Validator.validateResponse(inputView.confirmMembership());
+        PurchaseDto purchaseDto = purchaseService.calculatePurchase(promotionDtos, hasMembership);
     }
 }
