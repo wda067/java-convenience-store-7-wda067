@@ -29,7 +29,7 @@ public class PurchaseController {
         while (true) {
             LocalDate date = now().toLocalDate();
             displayWelcomeAndProducts();
-            initCart();
+            initCart(date);
             List<PromotionDto> promotionDtos = applyPromotions(date);
             PurchaseDto purchaseDto = calculatePurchase(promotionDtos);
             displayReceipt(promotionDtos, purchaseDto);
@@ -46,12 +46,12 @@ public class PurchaseController {
         outputView.printProducts(purchaseService.getProducts());
     }
 
-    private void initCart() {
+    private void initCart(LocalDate date) {
         while (true) {
             try {
                 String inputProduct = inputView.inputProduct();
                 Map<String, Integer> cart = Validator.validateProduct(inputProduct);
-                purchaseService.initCart(cart);
+                purchaseService.initCart(cart, date);
                 return;
             } catch (IllegalArgumentException e) {
                 outputView.printExceptionMessage(e.getMessage());
