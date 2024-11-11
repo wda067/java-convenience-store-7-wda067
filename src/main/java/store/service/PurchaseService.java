@@ -29,7 +29,14 @@ public class PurchaseService {
     private void validateProduct(Map<String, Integer> cart, LocalDate date) {
         for (Entry<String, Integer> entry : cart.entrySet()) {
             Product product = getProductByName(entry.getKey());
-        
+            if (isPromotionApplicable(product, date)) {
+                if (entry.getValue() > product.getQuantity() + product.getPromotionQuantity()) {
+                    throw new IllegalArgumentException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+                }
+            }
+            if (entry.getValue() > product.getQuantity()) {
+                throw new IllegalArgumentException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+            }
         }
     }
 
