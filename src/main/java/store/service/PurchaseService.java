@@ -40,7 +40,7 @@ public class PurchaseService {
                 if (entry.getValue() > product.getQuantity() + product.getPromotionQuantity()) {
                     throw new IllegalArgumentException(OUT_OF_QUANTITY.getMessage());
                 }
-                return;
+                continue;
             }
             if (entry.getValue() > product.getQuantity()) {
                 throw new IllegalArgumentException(OUT_OF_QUANTITY.getMessage());
@@ -65,7 +65,7 @@ public class PurchaseService {
             int pricePerUnit = product.getPrice() * quantity;
             productPurchaseDtos.add(new ProductDto(productName, quantity, pricePerUnit));
         }
-        return productPurchaseDtos;
+        return productPurchaseDtos.reversed();
     }
 
     public List<PromotionDto> applyApplicablePromotions(LocalDate date) {
@@ -80,7 +80,7 @@ public class PurchaseService {
                 promotions.add(promotionDto);
             }
         }
-        return promotions;
+        return promotions.reversed();
     }
 
     public PromotionDto applyPromotion(Product product, int purchaseQuantity) {
