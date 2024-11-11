@@ -11,7 +11,8 @@ import store.domain.Promotion;
 
 public class ProductRepository {
 
-    private static final String filePath = "src/main/resources/products.md";
+    private static final String FILE_PATH = "src/main/resources/products.md";
+    private static final String COMMA = ",";
     private final List<Product> products;
     private final PromotionRepository promotionRepository;
 
@@ -23,11 +24,11 @@ public class ProductRepository {
 
     private void loadProducts() {
         try {
-            BufferedReader br = new BufferedReader(new FileReader(filePath));
+            BufferedReader br = new BufferedReader(new FileReader(FILE_PATH));
             String line;
             br.readLine();
             while ((line = br.readLine()) != null) {
-                String[] data = line.split(",");
+                String[] data = line.split(COMMA);
                 String name = data[0].trim();
                 int price = Integer.parseInt(data[1].trim());
                 int quantity = Integer.parseInt(data[2].trim());
