@@ -1,9 +1,13 @@
 package store.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import store.domain.Product;
 import store.domain.Promotion;
+import store.dto.PromotionDto;
 import store.repository.ProductRepository;
 
 public class PurchaseService {
@@ -17,6 +21,47 @@ public class PurchaseService {
 
     public void initInventory(Map<String, Integer> productInventory) {
         this.productInventory = productInventory;
+    }
+
+    public List<PromotionDto> applyApplicablePromotions(LocalDate date) {
+        List<PromotionDto> promotions = new ArrayList<>();
+        for (Entry<String, Integer> entry : productInventory.entrySet()) {
+            String item = entry.getKey();
+            int purchaseCount = entry.getValue();
+            Product product = productRepository.findProductByName(item)
+                    .orElseThrow();
+            if (isPromotionApplicable(product, date)) {
+                PromotionDto promotionDto = applyPromotion(product, purchaseCount);
+                promotions.add(promotionDto);
+            }
+        }
+        return promotions;
+    }
+
+    public PromotionDto applyPromotion(Product product, int purchaseQuantity) {
+        PromotionDto promotionDto = new PromotionDto(product.getName());
+        Promotion promotion = product.getPromotion();
+
+        //프로모션 재고가 충분한 경우
+        if (purchaseQuantity < product.getPromotionQuantity()) {
+            return getPromotionDto(purchaseQuantity, promotion, promotionDto);
+        }
+
+        return null;
+    }
+
+    private PromotionDto getPromotionDto(int purchaseQuantity, Promotion promotion, PromotionDto promotionDto) {
+        int free = purchaseQuantity / (promotion.getBuyQuantity() + promotion.getGetQuantity());
+        int remainder = purchaseQuantity % (promotion.getBuyQuantity() + promotion.getGetQuantity());
+        //추가 증정 가능
+        if (remainder == promotion.getBuyQuantity()) {
+            promotionDto.setFreeCount(free);
+            promotionDto.setAvailablePromotionQuantity(promotion.getGetQuantity());
+            return promotionDto;
+        }
+
+        promotionDto.setFreeCount(free);
+        return promotionDto;
     }
 
     private boolean isPromotionApplicable(Product product, LocalDate date) {
