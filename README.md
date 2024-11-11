@@ -1,4 +1,57 @@
-# 편의점
+# 🏪편의점
+이 프로젝트는 구매자의 할인 혜택과 재고 관리를 고려하여 최종 결제 금액을 산출하고 결제할 수 있는 콘솔 기반의 결제 시스템입니다.
+
+## 주요 기능
+- 상품 목록 조회: 재고 및 프로모션 정보를 포함한 상품 목록을 표시합니다.
+- 구매 및 결제 금액 계산: 구매하려는 상품과 수량을 입력하여 최종 결제 금액을 산출합니다.
+- 할인 적용:
+  - 프로모션 할인: 특정 조건에 따라 'N개 구매 시 1개 무료'와 같은 프로모션을 적용합니다.
+  - 멤버십 할인: 프로모션 할인 후 남은 금액에 대해 30% 할인을 적용하며, 할인 최대 한도는 8,000원입니다.
+- 재고 관리: 결제된 수량만큼 재고를 차감하며, 프로모션 재고와 일반 재고를 각각 관리합니다.
+- 영수증 출력: 구매 내역과 결제 세부 정보가 포함된 영수증을 출력하여 고객에게 안내합니다.
+- 추가 구매: 결제 후 추가 구매 의사를 확인하고, 추가 구매 시 최신 재고 정보를 표시합니다.
+
+## 패키지 구조
+```
+📦store
+ ┣ 📂controller
+ ┃ ┗ 📜PurchaseController.java
+ ┣ 📂domain
+ ┃ ┣ 📜Product.java
+ ┃ ┗ 📜Promotion.java
+ ┣ 📂dto
+ ┃ ┣ 📜ProductDto.java
+ ┃ ┣ 📜PromotionDto.java
+ ┃ ┗ 📜PurchaseDto.java
+ ┣ 📂enums
+ ┃ ┣ 📜Constants.java
+ ┃ ┣ 📜ExceptionMessage.java
+ ┃ ┣ 📜Message.java
+ ┃ ┗ 📜ProductConstants.java
+ ┣ 📂repository
+ ┃ ┣ 📜ProductRepository.java
+ ┃ ┗ 📜PromotionRepository.java
+ ┣ 📂service
+ ┃ ┗ 📜PurchaseService.java
+ ┣ 📂util
+ ┃ ┗ 📜Validator.java
+ ┣ 📂view
+ ┃ ┣ 📜InputView.java
+ ┃ ┗ 📜OutputView.java
+ ┗ 📜Application.java
+ ```
+- `PurchaseController` : 애플리케이션의 주요 흐름을 관리하며 사용자 요청을 처리합니다.
+- `Product`: 상품 정보를 관리하는 클래스입니다. 프로모션 적용에 따라 재고를 관리합니다. 
+- `Promotion`: 프로모션 정보를 관리하는 클래스입니다.
+- `ProductDto`, `PromotionDto`, `PurchaseDto`: 데이터 전달을 위한 DTO 클래스입니다.
+- `Constants`, `ExceptionMessage`, `Message`, `ProductConstants`: 애플리케이션에서 사용하는 상수 및 메시지 관리합니다.
+- `ProductRepository`: 상품 정보를 저장하고 조회하는 리포지토리입니다.
+- `PromotionRepository`: 프로모션 정보를 저장하고 조회하는 리포지토리입니다.
+- `PurchaseService`: 비즈니스 로직을 처리하며 할인 정책, 결제 금액 계산 등을 수행합니다.
+- `Validator` : 입력값의 유효성을 검사하여 잘못된 입력 시 `IllegalArgumentException`을 발생시킵니다.
+- `InputView`, `OutputView` : 콘솔 입출력을 담당합니다.
+- `Application` : `PurchaseController`를 호출하여 애플리케이션을 시작하는 메인 클래스입니다.
+
 
 ## 기능 목록
 - **상품 목록 출력**
