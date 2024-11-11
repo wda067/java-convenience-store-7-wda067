@@ -1,6 +1,11 @@
 package store.controller;
 
+import static camp.nextstep.edu.missionutils.DateTimes.now;
+
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
+import store.dto.PromotionDto;
 import store.service.PurchaseService;
 import store.util.Validator;
 import store.view.InputView;
@@ -27,6 +32,25 @@ public class PurchaseController {
         String inputProduct = inputView.inputProduct();
         Map<String, Integer> productInventory = Validator.validateProduct(inputProduct);
         purchaseService.initInventory(productInventory);
+
+        //프로모션 적용
+        LocalDate date = now().toLocalDate();
+        List<PromotionDto> promotionDtos = purchaseService.applyApplicablePromotions(date);
+
+        //재입력
+        for (PromotionDto promotionDto : promotionDtos) {
+            int availablePromotionQuantity = promotionDto.getAvailablePromotionQuantity();
+            if (availablePromotionQuantity != 0) {
+                String response = inputView.confirmFreeItemAddition(promotionDto.getName(), availablePromotionQuantity);
+                boolean isConfirmed = Validator.validateResponse(response);
+                if (isConfirmed) {
+                    promotionDto.setFreeCount(promotionDto.getFreeCount() + 1);
+                    productInventory.put(promotionDto.getName(), productInventory.get(promotionDto.getName()) + 1);
+                }
+            }
+          
+        }
+
 
     }
 }
