@@ -18,13 +18,13 @@ public class OutputView {
     }
 
     public void printPurchasedProducts(List<ProductDto> productDtos) {
-        System.out.println("==============W 편의점================");
-        System.out.println(String.format("%-15s\t%5s\t%10s", "상품명", "수량", "금액"));
+        System.out.println("\n==============W 편의점================");
+        System.out.printf("%-15s\t%-5s\t%-10s%n", "상품명", "수량", "금액");
         for (ProductDto productDto : productDtos) {
-            System.out.println(String.format("%-15s\t%5d\t%,10d",
+            System.out.printf("%-15s\t%-5s\t%,-10d%n",
                     productDto.getName(),
                     productDto.getQuantity(),
-                    productDto.getPrice()));
+                    productDto.getPrice());
         }
     }
 
@@ -32,20 +32,22 @@ public class OutputView {
         System.out.println("=============증\t\t정===============");
         freeProducts.stream()
                 .filter(product -> product.getFreeCount() > 0)
-                .forEach(product -> System.out.println(
-                        String.format("%-15s %d", product.getName(), product.getFreeCount())));
+                .forEach(product -> System.out.printf("%-15s\t%-5d%n", product.getName(), product.getFreeCount()));
     }
 
     public void printPaymentSummary(PurchaseDto purchaseDto) {
         System.out.println("====================================");
-        System.out.println(String.format("%-15s %5d %,10d",
+        System.out.printf("%-15s\t%-5d\t%,-10d%n",
                 "총구매액",
                 purchaseDto.getTotalCount(),
-                purchaseDto.getTotalAmount()));
+                purchaseDto.getTotalAmount());
 
-        System.out.println(String.format("%-15s %,10d", "행사할인", purchaseDto.getPromotionDiscount()));
-        System.out.println(String.format("%-15s %,10d", "멤버십할인", purchaseDto.getMembershipDiscount()));
-        System.out.println(String.format("%-15s %,10d", "내실돈", purchaseDto.getFinalAmount()));
+        System.out.printf("%-20s\t\t%,-10d%n", "행사할인", purchaseDto.getPromotionDiscount());
+        System.out.printf("%-20s\t\t%,-10d%n", "멤버십할인", purchaseDto.getMembershipDiscount());
+        System.out.printf("%-15s\t\t%,10d%n", "내실돈", purchaseDto.getFinalAmount());
     }
 
+    public void printExceptionMessage(String message) {
+        System.out.println("exception message: " + message);
+    }
 }
