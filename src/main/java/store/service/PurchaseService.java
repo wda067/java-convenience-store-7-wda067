@@ -21,8 +21,16 @@ public class PurchaseService {
         this.productRepository = productRepository;
     }
 
-    public void initCart(Map<String, Integer> cart) {
+    public void initCart(Map<String, Integer> cart, LocalDate date) {
+        validateProduct(cart, date);
         this.cart = cart;
+    }
+
+    private void validateProduct(Map<String, Integer> cart, LocalDate date) {
+        for (Entry<String, Integer> entry : cart.entrySet()) {
+            Product product = getProductByName(entry.getKey());
+        
+        }
     }
 
     public List<Product> getProducts() {
@@ -164,7 +172,7 @@ public class PurchaseService {
 
     private Product getProductByName(String name) {
         return productRepository.findProductByName(name)
-                .orElseThrow(() -> new IllegalArgumentException());
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다. 다시 입력해 주세요."));
     }
 
     private boolean isPromotionApplicable(Product product, LocalDate date) {
