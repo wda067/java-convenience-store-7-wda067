@@ -1,6 +1,8 @@
 package store.controller;
 
+import java.util.Map;
 import store.service.PurchaseService;
+import store.util.Validator;
 import store.view.InputView;
 import store.view.OutputView;
 
@@ -21,6 +23,10 @@ public class PurchaseController {
         outputView.printWelcomeMessage();
         outputView.printProducts(purchaseService.getProducts());
 
-       
+        //상품과 수량 입력
+        String inputProduct = inputView.inputProduct();
+        Map<String, Integer> productInventory = Validator.validateProduct(inputProduct);
+        purchaseService.initInventory(productInventory);
+
     }
 }
