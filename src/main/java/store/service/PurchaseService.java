@@ -87,7 +87,7 @@ public class PurchaseService {
 
     public PurchaseDto calculatePurchase(List<PromotionDto> promotions) {
         int totalCount = calculateTotalCount();
-        int totalAmount = 0;
+        int totalAmount = calculateTotalAmount();
         int promotionDiscount = 0;
         int membershipDiscount = 0;
         int finalAmount = totalAmount + promotionDiscount + membershipDiscount;
@@ -98,6 +98,20 @@ public class PurchaseService {
         return productInventory.values().stream()
                 .mapToInt(Integer::intValue)
                 .sum();
+    }
+
+    private int calculateTotalAmount() {
+        return productInventory.entrySet().stream()
+                .mapToInt(entry -> {
+                    Product product = getProductByName(entry.getKey());
+                    return product.getPrice() * entry.getValue();
+                })
+                .sum();
+    }
+
+    private Product getProductByName(String name) {
+        return productRepository.findProductByName(name)
+                .orElseThrow(() -> new IllegalArgumentException());
     }
 
     private boolean isPromotionApplicable(Product product, LocalDate date) {
