@@ -73,4 +73,8 @@ public class OutputView {
     public void printExceptionMessage(String message) {
         System.out.println(ERROR_PREFIX.getMessage() + message);
     }
+
+    public void printNewLine() {
+        System.out.println();
+    }
 }
