@@ -67,4 +67,31 @@ public class Product {
         }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder normalProduct = new StringBuilder();
+        StringBuilder promotionProduct = new StringBuilder();
+        NumberFormat formatter = NumberFormat.getInstance(Locale.KOREA);  //가격에 쉼표 추가
+
+        normalProduct.append("- ").append(name).append(" ")
+                .append(formatter.format(price)).append("원 ");
+        if (quantity > 0) {
+            normalProduct.append(quantity).append("개 ");
+        } else {
+            normalProduct.append("재고 없음");
+        }
+        if (promotion == null) {
+            return normalProduct.toString();
+        }
+
+        promotionProduct.append("- ").append(name).append(" ")
+                .append(formatter.format(price)).append("원 ");
+        if (promotionQuantity > 0) {
+            promotionProduct.append(promotionQuantity).append("개 ");
+        } else {
+            promotionProduct.append("재고 없음");
+        }
+        promotionProduct.append(promotion.getName());
+        return promotionProduct.append("\n").append(normalProduct).toString();
+    }
 }
