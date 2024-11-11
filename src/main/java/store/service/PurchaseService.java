@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import store.domain.Product;
 import store.domain.Promotion;
 import store.dto.PromotionDto;
+import store.dto.PurchaseDto;
 import store.repository.ProductRepository;
 
 public class PurchaseService {
@@ -67,6 +68,20 @@ public class PurchaseService {
         promotionDto.setFreeCount(free);
         return promotionDto;
     }
+
+    public List<Product> getProducts() {
+        return productRepository.findAllProducts();
+    }
+
+    public void updateQuantity() {
+        for (Entry<String, Integer> entry : productInventory.entrySet()) {
+            Product product = productRepository.findProductByName(entry.getKey())
+                    .orElseThrow();
+
+            product.reduceQuantity(entry.getValue());
+        }
+    }
+
 
     private boolean isPromotionApplicable(Product product, LocalDate date) {
         Promotion promotion = product.getPromotion();

@@ -51,4 +51,8 @@ public class Product {
         this.quantity = quantity;
     }
 
+    public void reduceQuantity(int quantity) {
+        this.quantity -= quantity;
+    }
+
 }
