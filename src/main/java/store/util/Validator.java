@@ -20,4 +20,13 @@ public class Validator {
 
         return map;
     }
+
+    public static boolean validateResponse(String input) {
+        if (input.equalsIgnoreCase("Y")) {
+            return true;
+        } else if (input.equalsIgnoreCase("N")) {
+            return false;
+        }
+        throw new IllegalArgumentException();
+    }
 }
