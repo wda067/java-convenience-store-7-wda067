@@ -88,7 +88,7 @@ public class PurchaseService {
     public PurchaseDto calculatePurchase(List<PromotionDto> promotions) {
         int totalCount = calculateTotalCount();
         int totalAmount = calculateTotalAmount();
-        int promotionDiscount = 0;
+        int promotionDiscount = calculatePromotionDiscount(promotions);
         int membershipDiscount = 0;
         int finalAmount = totalAmount + promotionDiscount + membershipDiscount;
         return new PurchaseDto(totalCount, totalAmount, promotionDiscount, membershipDiscount, finalAmount);
@@ -107,6 +107,15 @@ public class PurchaseService {
                     return product.getPrice() * entry.getValue();
                 })
                 .sum();
+    }
+
+    private int calculatePromotionDiscount(List<PromotionDto> promotionDtos) {
+        return promotionDtos.stream()
+                .mapToInt(promotion -> {
+                    Product product = getProductByName(promotion.getName());
+                    return product.getPrice() * promotion.getFreeCount();
+                })
+                .sum() * -1;
     }
 
     private Product getProductByName(String name) {
