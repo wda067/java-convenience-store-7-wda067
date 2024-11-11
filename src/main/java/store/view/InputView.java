@@ -13,4 +13,9 @@ public class InputView {
         System.out.println("멤버십 할인을 받으시겠습니까? (Y/N)");
         return readLine();
     }
+
+    public String confirmFreeItemAddition(String item, int count) {
+        System.out.println("현재 " + item + "은(는) " + count + "개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)");
+        return readLine();
+    }
 }
