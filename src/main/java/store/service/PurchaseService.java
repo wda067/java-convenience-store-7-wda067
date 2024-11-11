@@ -84,7 +84,21 @@ public class PurchaseService {
             product.reduceQuantity(entry.getValue());
         }
     }
-    
+
+    public PurchaseDto calculatePurchase(List<PromotionDto> promotions) {
+        int totalCount = calculateTotalCount();
+        int totalAmount = 0;
+        int promotionDiscount = 0;
+        int membershipDiscount = 0;
+        int finalAmount = totalAmount + promotionDiscount + membershipDiscount;
+        return new PurchaseDto(totalCount, totalAmount, promotionDiscount, membershipDiscount, finalAmount);
+    }
+
+    private int calculateTotalCount() {
+        return productInventory.values().stream()
+                .mapToInt(Integer::intValue)
+                .sum();
+    }
 
     private boolean isPromotionApplicable(Product product, LocalDate date) {
         Promotion promotion = product.getPromotion();
