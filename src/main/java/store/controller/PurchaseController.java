@@ -26,14 +26,19 @@ public class PurchaseController {
     }
 
     public void run() {
-        LocalDate date = now().toLocalDate();
-        do {
+        while (true) {
+            LocalDate date = now().toLocalDate();
             displayWelcomeAndProducts();
-            Map<String, Integer> cart = getCart();
-            List<PromotionDto> promotionDtos = applyPromotions(cart, date);
+            initCart();
+            List<PromotionDto> promotionDtos = applyPromotions(date);
             PurchaseDto purchaseDto = calculatePurchase(promotionDtos);
-            displayReceipt(cart, promotionDtos, purchaseDto);
-        } while (isAdditionalPurchase(date));
+            displayReceipt(promotionDtos, purchaseDto);
+
+            if (!isAdditionalPurchase(date)) {
+                break;
+            }
+            System.out.println();
+        }
     }
 
     private void displayWelcomeAndProducts() {
@@ -41,24 +46,24 @@ public class PurchaseController {
         outputView.printProducts(purchaseService.getProducts());
     }
 
-    private Map<String, Integer> getCart() {
+    private void initCart() {
         while (true) {
             try {
                 String inputProduct = inputView.inputProduct();
                 Map<String, Integer> cart = Validator.validateProduct(inputProduct);
                 purchaseService.initCart(cart);
-                return cart;
+                return;
             } catch (IllegalArgumentException e) {
                 outputView.printExceptionMessage(e.getMessage());
             }
         }
     }
 
-    private List<PromotionDto> applyPromotions(Map<String, Integer> cart, LocalDate date) {
+    private List<PromotionDto> applyPromotions(LocalDate date) {
         List<PromotionDto> promotionDtos = purchaseService.applyApplicablePromotions(date);
 
         for (PromotionDto promotionDto : promotionDtos) {
-            handlePromotionInput(cart, promotionDto);
+            handlePromotionInput(purchaseService.getCart(), promotionDto);
         }
 
         return promotionDtos;
@@ -122,9 +127,8 @@ public class PurchaseController {
         return purchaseService.calculatePurchase(promotionDtos, hasMembership);
     }
 
-    private void displayReceipt(Map<String, Integer> productInventory, List<PromotionDto> promotionDtos,
-                                PurchaseDto purchaseDto) {
-        outputView.printPurchasedProducts(productInventory);
+    private void displayReceipt(List<PromotionDto> promotionDtos, PurchaseDto purchaseDto) {
+        outputView.printPurchasedProducts(purchaseService.getProductDtos());
         outputView.printFreeProducts(promotionDtos);
         outputView.printPaymentSummary(purchaseDto);
     }

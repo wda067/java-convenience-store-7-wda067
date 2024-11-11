@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import store.domain.Product;
 import store.domain.Promotion;
+import store.dto.ProductDto;
 import store.dto.PromotionDto;
 import store.dto.PurchaseDto;
 import store.repository.ProductRepository;
@@ -30,6 +31,18 @@ public class PurchaseService {
 
     public Map<String, Integer> getCart() {
         return cart;
+    }
+
+    public List<ProductDto> getProductDtos() {
+        List<ProductDto> productPurchaseDtos = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : cart.entrySet()) {
+            String productName = entry.getKey();
+            int quantity = entry.getValue();
+            Product product = getProductByName(productName);
+            int pricePerUnit = product.getPrice() * quantity;
+            productPurchaseDtos.add(new ProductDto(productName, quantity, pricePerUnit));
+        }
+        return productPurchaseDtos;
     }
 
     public List<PromotionDto> applyApplicablePromotions(LocalDate date) {
