@@ -123,7 +123,8 @@ public class PurchaseService {
                 .mapToInt(this::calculateIndividualMembershipDiscount)
                 .sum() - totalAmount;
 
-        return (int) (membershipDiscount * 0.3);
+        membershipDiscount = (int) (membershipDiscount * 0.3).r
+        return Math.max(membershipDiscount, -8000);
     }
 
     private int calculateIndividualMembershipDiscount(PromotionDto promotionDto) {
