@@ -32,7 +32,14 @@ public enum Message {
     TOTAL_AMOUNT("총구매액"),
     PROMOTION_DISCOUNT("행사할인"),
     MEMBERSHIP_DISCOUNT("멤버십할인"),
-    FINAL_ACCOUNT("내실돈");
+    FINAL_ACCOUNT("내실돈"),
+
+    AMOUNT_FORMAT("%,d"),
+    DISCOUNT_FORMAT("-%s"),
+    MINUS_ZERO("-0"),
+
+    YES("Y"),
+    NO("N");
 
 
     private final String message;

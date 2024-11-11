@@ -1,5 +1,11 @@
 package store.service;
 
+import static store.enums.Constants.MEMBERSHIP_DISCOUNT_MAX_VALUE;
+import static store.enums.Constants.MINUS_ONE_VALUE;
+import static store.enums.Constants.ZERO_VALUE;
+import static store.enums.ExceptionMessage.OUT_OF_QUANTITY;
+import static store.enums.ExceptionMessage.PRODUCT_NOT_FOUND;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +20,7 @@ import store.repository.ProductRepository;
 
 public class PurchaseService {
 
+    private static final double THIRTY_PERCENT_DISCOUNT = 0.3;
     private final ProductRepository productRepository;
     private Map<String, Integer> cart;
 
@@ -31,11 +38,12 @@ public class PurchaseService {
             Product product = getProductByName(entry.getKey());
             if (isPromotionApplicable(product, date)) {
                 if (entry.getValue() > product.getQuantity() + product.getPromotionQuantity()) {
-                    throw new IllegalArgumentException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+                    throw new IllegalArgumentException(OUT_OF_QUANTITY.getMessage());
                 }
+                return;
             }
             if (entry.getValue() > product.getQuantity()) {
-                throw new IllegalArgumentException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+                throw new IllegalArgumentException(OUT_OF_QUANTITY.getMessage());
             }
         }
     }
@@ -83,7 +91,6 @@ public class PurchaseService {
         if (purchaseQuantity < product.getPromotionQuantity()) {
             return getDtoWhenQuantityIsSufficient(purchaseQuantity, promotion, promotionDto);
         }
-
         //프로모션 재고가 부족한 경우
         return getDtoWhenQuantityIsInsufficient(product, purchaseQuantity, promotion, promotionDto);
     }
@@ -129,7 +136,7 @@ public class PurchaseService {
         int totalCount = calculateTotalCount();
         int totalAmount = calculateTotalAmount();
         int promotionDiscount = calculatePromotionDiscount(promotions);
-        int membershipDiscount = 0;
+        int membershipDiscount = ZERO_VALUE.getValue();
         if (hasMembership) {
             membershipDiscount = calculateMembershipDiscount(totalAmount, promotions);
         }
@@ -158,7 +165,7 @@ public class PurchaseService {
                     Product product = getProductByName(promotion.getName());
                     return product.getPrice() * promotion.getFreeCount();
                 })
-                .sum() * -1;
+                .sum() * MINUS_ONE_VALUE.getValue();
     }
 
     private int calculateMembershipDiscount(int totalAmount, List<PromotionDto> promotionDtos) {
@@ -166,8 +173,8 @@ public class PurchaseService {
                 .mapToInt(this::calculateIndividualMembershipDiscount)
                 .sum() - totalAmount;
 
-        membershipDiscount = (int) (membershipDiscount * 0.3);
-        return Math.max(membershipDiscount, -8000);
+        membershipDiscount = (int) (membershipDiscount * THIRTY_PERCENT_DISCOUNT);
+        return Math.max(membershipDiscount, MINUS_ONE_VALUE.getValue() * MEMBERSHIP_DISCOUNT_MAX_VALUE.getValue());
     }
 
     private int calculateIndividualMembershipDiscount(PromotionDto promotionDto) {
@@ -179,7 +186,7 @@ public class PurchaseService {
 
     private Product getProductByName(String name) {
         return productRepository.findProductByName(name)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다. 다시 입력해 주세요."));
+                .orElseThrow(() -> new IllegalArgumentException(PRODUCT_NOT_FOUND.getMessage()));
     }
 
     private boolean isPromotionApplicable(Product product, LocalDate date) {

@@ -1,6 +1,8 @@
 package store.controller;
 
 import static camp.nextstep.edu.missionutils.DateTimes.now;
+import static store.enums.Constants.ONE_VALUE;
+import static store.enums.Constants.ZERO_VALUE;
 import static store.util.Validator.validateResponse;
 
 import java.time.LocalDate;
@@ -71,11 +73,11 @@ public class PurchaseController {
 
     private void handlePromotionInput(Map<String, Integer> cart, PromotionDto promotionDto) {
         int availablePromotionQuantity = promotionDto.getAvailablePromotionQuantity();
-        if (availablePromotionQuantity > 0) {
+        if (availablePromotionQuantity > ZERO_VALUE.getValue()) {
             handleFreeProductAddition(cart, promotionDto);
         }
         int nonPromotionQuantity = promotionDto.getNonPromotionQuantity();
-        if (nonPromotionQuantity > 0) {
+        if (nonPromotionQuantity > ZERO_VALUE.getValue()) {
             handlePurchaseWithoutPromotion(cart, promotionDto);
         }
     }
@@ -86,8 +88,8 @@ public class PurchaseController {
             try {
                 String response = inputView.confirmFreeItemAddition(promotionDto.getName(), availablePromotionQuantity);
                 if (validateResponse(response)) {
-                    promotionDto.setFreeCount(promotionDto.getFreeCount() + 1);
-                    cart.put(promotionDto.getName(), cart.get(promotionDto.getName()) + 1);
+                    promotionDto.setFreeCount(promotionDto.getFreeCount() + ONE_VALUE.getValue());
+                    cart.put(promotionDto.getName(), cart.get(promotionDto.getName()) + ONE_VALUE.getValue());
                 }
                 break;
             } catch (IllegalArgumentException e) {
@@ -129,7 +131,9 @@ public class PurchaseController {
 
     private void displayReceipt(List<PromotionDto> promotionDtos, PurchaseDto purchaseDto) {
         outputView.printPurchasedProducts(purchaseService.getProductDtos());
-        outputView.printFreeProducts(promotionDtos);
+        if (!promotionDtos.isEmpty()) {
+            outputView.printFreeProducts(promotionDtos);
+        }
         outputView.printPaymentSummary(purchaseDto);
     }
 

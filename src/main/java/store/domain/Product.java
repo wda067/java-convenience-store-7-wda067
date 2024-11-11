@@ -1,5 +1,13 @@
 package store.domain;
 
+import static store.enums.Constants.ZERO_VALUE;
+import static store.enums.ProductConstants.BLANK;
+import static store.enums.ProductConstants.CURRENCY;
+import static store.enums.ProductConstants.DASH;
+import static store.enums.ProductConstants.NEW_LINE;
+import static store.enums.ProductConstants.NO_QUANTITY;
+import static store.enums.ProductConstants.PIECES;
+
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -43,12 +51,12 @@ public class Product {
         return promotionQuantity;
     }
 
-    public Promotion getPromotion() {
-        return promotion;
-    }
-
     public void setPromotionQuantity(int quantity) {
         this.promotionQuantity = quantity;
+    }
+
+    public Promotion getPromotion() {
+        return promotion;
     }
 
     public void setPromotion(Promotion promotion) {
@@ -61,9 +69,9 @@ public class Product {
 
     public void reducePromotionQuantity(int quantity) {
         this.promotionQuantity -= quantity;
-        if (this.promotionQuantity < 0) {
+        if (this.promotionQuantity < ZERO_VALUE.getValue()) {
             reduceQuantity(Math.abs(this.promotionQuantity));
-            this.promotionQuantity = 0;
+            this.promotionQuantity = ZERO_VALUE.getValue();
         }
     }
 
@@ -71,27 +79,31 @@ public class Product {
     public String toString() {
         StringBuilder normalProduct = new StringBuilder();
         StringBuilder promotionProduct = new StringBuilder();
-        NumberFormat formatter = NumberFormat.getInstance(Locale.KOREA);  //가격에 쉼표 추가
+        NumberFormat formatter = NumberFormat.getInstance(Locale.KOREA);
 
-        normalProduct.append("- ").append(name).append(" ")
-                .append(formatter.format(price)).append("원 ");
-        if (quantity > 0) {
-            normalProduct.append(quantity).append("개 ");
+        normalProduct.append(DASH.getValue()).append(name).append(BLANK.getValue())
+                .append(formatter.format(price)).append(CURRENCY.getValue());
+        if (quantity > ZERO_VALUE.getValue()) {
+            normalProduct.append(quantity).append(PIECES.getValue());
         } else {
-            normalProduct.append("재고 없음");
+            normalProduct.append(NO_QUANTITY.getValue());
         }
         if (promotion == null) {
             return normalProduct.toString();
         }
 
-        promotionProduct.append("- ").append(name).append(" ")
-                .append(formatter.format(price)).append("원 ");
-        if (promotionQuantity > 0) {
-            promotionProduct.append(promotionQuantity).append("개 ");
+        return getPromotionProduct(promotionProduct, formatter, normalProduct);
+    }
+
+    private String getPromotionProduct(StringBuilder promotionProduct, NumberFormat formatter, StringBuilder normalProduct) {
+        promotionProduct.append(DASH.getValue()).append(name).append(BLANK.getValue())
+                .append(formatter.format(price)).append(CURRENCY.getValue());
+        if (promotionQuantity > ZERO_VALUE.getValue()) {
+            promotionProduct.append(promotionQuantity).append(PIECES.getValue());
         } else {
-            promotionProduct.append("재고 없음");
+            promotionProduct.append(NO_QUANTITY.getValue()).append(BLANK.getValue());
         }
         promotionProduct.append(promotion.getName());
-        return promotionProduct.append("\n").append(normalProduct).toString();
+        return promotionProduct.append(NEW_LINE.getValue()).append(normalProduct).toString();
     }
 }
